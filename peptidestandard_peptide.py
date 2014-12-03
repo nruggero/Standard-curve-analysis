@@ -10,7 +10,8 @@ import argparse
 import os
 import csv
 
-IGNORE_CHARACTERS = ["#", "-", "*", "^", "@"]
+from standard_curve_library import IGNORE_CHARACTERS
+from standard_curve_library import removeIgnoreCharacters, averageList
 
 def main(data_infile, data_outfile, PSM):
 	# Open file and load data into lists
@@ -79,15 +80,6 @@ def main(data_infile, data_outfile, PSM):
 		average_top_3 = averageList([x[0] for x in top_3])
 
 		csv_writer.writerow([average_top_3, top_3])
-
-
-def removeIgnoreCharacters(string):
-	for ig_char in IGNORE_CHARACTERS:
-		string = string.replace(ig_char,"")
-	return string
-
-def averageList(l):
-	return reduce(lambda x, y: x + y, l) / len(l)
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
