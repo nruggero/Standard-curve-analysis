@@ -61,25 +61,28 @@ def main(data_infile, data_outfile, PSM):
 		csv_writer = csv.writer(csv_outfile)
 
 		# Output area data
-		csv_writer.writerow(['peptide', 'mean area'])
+		csv_writer.writerow(['peptide', 'mean area', 'peptide id'])
 
 		for peptide in peptide_dict.iterkeys():
 			csv_writer.writerow([
 				peptide,
-				averageList(peptide_dict[peptide]['area'])
+				averageList(peptide_dict[peptide]['area']),
+				peptide_dict[peptide]['reference'][0]
 				])
+			if len(peptide_dict[peptide]['reference']) > 1:
+				raise Exception, "Peptide {} has more than one reference ID!\n".format(peptide)
 
-		# Write blank row
-		csv_writer.writerow([])
-		csv_writer.writerow(['average of top 3 intensities', 'peptides used'])
+		# # Write blank row
+		# csv_writer.writerow([])
+		# csv_writer.writerow(['average of top 3 intensities', 'peptides used'])
 
-		# Output intensity data
-		peptide_maxes_for_protein = [(max(peptide_dict[peptide]['intensity']), peptide) for peptide in peptide_dict.iterkeys()]
-		peptide_maxes_for_protein.sort()
-		top_3 = peptide_maxes_for_protein[-3:]
-		average_top_3 = averageList([x[0] for x in top_3])
+		# # Output intensity data
+		# peptide_maxes_for_protein = [(max(peptide_dict[peptide]['intensity']), peptide) for peptide in peptide_dict.iterkeys()]
+		# peptide_maxes_for_protein.sort()
+		# top_3 = peptide_maxes_for_protein[-3:]
+		# average_top_3 = averageList([x[0] for x in top_3])
 
-		csv_writer.writerow([average_top_3, top_3])
+		# csv_writer.writerow([average_top_3, top_3])
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
