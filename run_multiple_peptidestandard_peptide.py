@@ -6,7 +6,7 @@ def main(input_directory, output_directory, PSM):
 	# Get all files in input directory
 	input_files = os.listdir(input_directory)
 	input_files = [x for x in input_files if x[0] != '.']
-	import ipdb; ipdb.set_trace()
+
 	for input_file in input_files:
 		subprocess.call(
 			["python",
