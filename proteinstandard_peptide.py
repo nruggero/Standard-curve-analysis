@@ -46,7 +46,7 @@ def main(data_infile, data_outfile, PSM):
 		if not PSM:
 			peptide = removeIgnoreCharacters(peptide)
 
-		if protein_dict.has_key(peptide_full_list[idx]):
+		if protein_dict.has_key(peptide):
 			protein_dict[peptide]['area'].append(area_full_list[idx])
 			protein_dict[peptide]['intensity'].append(intensity_full_list[idx])
 		else:
