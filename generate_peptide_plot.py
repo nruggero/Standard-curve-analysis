@@ -2,6 +2,7 @@ import subprocess
 import os
 import argparse
 import csv
+from collections import OrderedDict
 
 import matplotlib
 matplotlib.use("Agg")
@@ -50,6 +51,8 @@ def main(input_directory, output_directory):
 
 			if not len(output_dict[peptide]['id']):
 				output_dict[peptide]['id'].append(peptide_dict_at_conc[peptide]['id'])
+	# Sort output_dict so it always prints in same order (by peptide ID not peptide sequence)
+	output_dict = OrderedDict(sorted(output_dict.iteritems(), key=lambda (k,v): (v['id'],k)))
 
 	# Write plot file
 	plt.figure(figsize = (8.5, 11))
@@ -60,7 +63,7 @@ def main(input_directory, output_directory):
 		area = output_dict[peptide]['area']
 
 		# Plot data
-		axis = plt.subplot(number_rows, NCOL, i)
+		axis = plt.subplot(number_rows, NCOL, i+1)
 		axis.plot(concentrations, area, 'x')
 
 		# Calculate fit
@@ -75,7 +78,6 @@ def main(input_directory, output_directory):
 		ssreg = np.sum((yhat-ybar)**2)
 		sstot = np.sum((area - ybar)**2)
 		r_squared = ssreg / sstot
-		#r_squared = 0.1
 
 	    # Plot fit
 		fit_area = fit(concentrations)
