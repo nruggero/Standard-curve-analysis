@@ -103,18 +103,6 @@ def main(data_infile, data_outfile, PSM):
 			if len(peptide_dict[peptide]['reference']) > 1:
 				raise Exception, "Peptide {} has more than one reference ID!\n".format(peptide)
 
-		# # Write blank row
-		# csv_writer.writerow([])
-		# csv_writer.writerow(['average of top 3 intensities', 'peptides used'])
-
-		# # Output intensity data
-		# peptide_maxes_for_protein = [(max(peptide_dict[peptide]['intensity']), peptide) for peptide in peptide_dict.iterkeys()]
-		# peptide_maxes_for_protein.sort()
-		# top_3 = peptide_maxes_for_protein[-3:]
-		# average_top_3 = averageList([x[0] for x in top_3])
-
-		# csv_writer.writerow([average_top_3, top_3])
-
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
 	parser.add_argument("data_infile", help = "CSV file containing analyzed output", type = str)
