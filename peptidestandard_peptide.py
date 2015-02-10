@@ -11,7 +11,7 @@ import os
 import csv
 
 from standard_curve_library import IGNORE_CHARACTERS
-from standard_curve_library import removeIgnoreCharacters, averageList
+from standard_curve_library import removeIgnoreCharacters, averageList, findIndexClosestToNumber, median
 
 def main(data_infile, data_outfile, PSM):
 	# Open file and load data into lists
@@ -20,12 +20,16 @@ def main(data_infile, data_outfile, PSM):
 	peptide_reference_full_list	= []
 	peptide_full_list		= []
 	intensity_full_list		= []
+	elutiontime_full_list	= []
+	maxtime_full_list 		= []
 	area_full_list			= []
 	with open(data_infile, 'rU') as csv_infile:
 		dict_reader = csv.DictReader(csv_infile)
 		for row in dict_reader:
 			peptide_reference_full_list.append(row['Reference'])
 			peptide_full_list.append(row['Peptide'])
+			elutiontime_full_list.append(float(row['Time']))
+			maxtime_full_list.append(float(row['Max Time']))
 			intensity_full_list.append(float(row['Precursor Intensity']))
 			area_full_list.append(float(row['Area']))
 
@@ -37,6 +41,8 @@ def main(data_infile, data_outfile, PSM):
 
 	peptide_reference_list 	= [peptide_reference_full_list[idx] for idx in peptide_reference_idx]
 	peptide_list 			= [peptide_full_list[idx] for idx in peptide_reference_idx]
+	elutiontime_list 		= [elutiontime_full_list[idx] for idx in peptide_reference_idx]
+	maxtime_list 			= [maxtime_full_list[idx] for idx in peptide_reference_idx]
 	intensity_list 			= [intensity_full_list[idx] for idx in peptide_reference_idx]
 	area_list 				= [area_full_list[idx] for idx in peptide_reference_idx]
 
@@ -50,10 +56,33 @@ def main(data_infile, data_outfile, PSM):
 			peptide = removeIgnoreCharacters(peptide)
 
 		if peptide_dict.has_key(peptide):
+			peptide_dict[peptide]['elutiontime'].append(elutiontime_list[idx])
+			peptide_dict[peptide]['maxtime'].append(maxtime_list[idx])
 			peptide_dict[peptide]['area'].append(area_list[idx])
 			peptide_dict[peptide]['intensity'].append(intensity_list[idx])
 		else:
-			peptide_dict[peptide] = {'area' : [area_list[idx]], 'intensity' : [intensity_list[idx]], 'reference' : [peptide_reference_list[idx]]}
+			peptide_dict[peptide] = {
+									'elutiontime' : [elutiontime_list[idx]],
+									'maxtime' : [maxtime_list[idx]],
+									'area' : [area_list[idx]],
+									'intensity' : [intensity_list[idx]],
+									'reference' : [peptide_reference_list[idx]],
+									'closest_to_maxtime_idx' : None
+									}
+
+
+	## Find elution time closest to maxtime
+	for peptide in peptide_dict.iterkeys():
+		if len(set(peptide_dict[peptide]['maxtime'])) > 1:
+			print '{} has more than one maxtime. Picking largest area {}!'.format(peptide, max(peptide_dict[peptide]['area']))
+			largest_area = max(peptide_dict[peptide]['area'])
+			largest_area_index = peptide_dict[peptide]['area'].index(largest_area)
+			maxtime = peptide_dict[peptide]['maxtime'][largest_area_index]
+		else:
+			maxtime = peptide_dict[peptide]['maxtime'][0]
+		peptide_dict[peptide]['closest_to_maxtime_idx'] = findIndexClosestToNumber(
+															maxtime, peptide_dict[peptide]['elutiontime']
+															)
 
 	## Save output computing averages/intensities on the fly
 	print "Writing to file {}".format(data_outfile)
@@ -61,12 +90,14 @@ def main(data_infile, data_outfile, PSM):
 		csv_writer = csv.writer(csv_outfile)
 
 		# Output area data
-		csv_writer.writerow(['peptide', 'mean area', 'peptide id'])
+		csv_writer.writerow(['peptide', 'area with elution time closest to maxtime', 'sum of area', 'median of area', 'peptide id'])
 
 		for peptide in peptide_dict.iterkeys():
 			csv_writer.writerow([
 				peptide,
-				averageList(peptide_dict[peptide]['area']),
+				peptide_dict[peptide]['area'][peptide_dict[peptide]['closest_to_maxtime_idx']],
+				sum(peptide_dict[peptide]['area']),
+				median(peptide_dict[peptide]['area']),
 				peptide_dict[peptide]['reference'][0]
 				])
 			if len(peptide_dict[peptide]['reference']) > 1:
