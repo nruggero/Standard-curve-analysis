@@ -63,6 +63,7 @@ def main(data_infile, data_outfile, PSM):
 									'intensity' : [intensity_full_list[idx]],
 									'closest_to_maxtime_idx' : None
 									}
+									
 	## Find elution time closest to maxtime
 	for protein in peptide_data_by_protein.iterkeys():
 		peptide_dict = peptide_data_by_protein[protein]
@@ -94,14 +95,20 @@ def main(data_infile, data_outfile, PSM):
 				firstRow = False
 			else:
 				protein_identifier = ''
-
+			
+			allAreas = []
+			for x in peptide_dict.itervalues():
+				allAreas.extend(x['area'])
+			sumOfRunArea = sum(allAreas)
+			medianOfRunArea = median(allAreas)
+			
 			for peptide in peptide_dict.iterkeys():
 				csv_writer.writerow([
 					protein_identifier,
 					peptide,
 					peptide_dict[peptide]['area'][peptide_dict[peptide]['closest_to_maxtime_idx']],
-					sum(peptide_dict[peptide]['area']),
-					median(peptide_dict[peptide]['area'])
+					sumOfRunArea, #sum(peptide_dict[peptide]['area']),
+					medianOfRunArea, #median(peptide_dict[peptide]['area'])
 					])
 
 		# Write blank row
