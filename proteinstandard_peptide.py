@@ -87,6 +87,14 @@ def main(data_infile, data_outfile, PSM):
 		# Output area data
 		csv_writer.writerow(['protein id', 'peptide', 'area with elution time closest to maxtime', 'sum of area', 'median of area'])
 
+		allAreas = []
+		for protein in protein_id_unique:
+			peptide_dict = peptide_data_by_protein[protein]
+			for x in peptide_dict.itervalues():
+				allAreas.extend(x['area'])
+		sumOfRunArea = sum(allAreas)
+		medianOfRunArea = median(allAreas)
+
 		for protein in protein_id_unique:
 			firstRow = True
 			peptide_dict  = peptide_data_by_protein[protein]
@@ -95,12 +103,6 @@ def main(data_infile, data_outfile, PSM):
 				firstRow = False
 			else:
 				protein_identifier = ''
-			
-			allAreas = []
-			for x in peptide_dict.itervalues():
-				allAreas.extend(x['area'])
-			sumOfRunArea = sum(allAreas)
-			medianOfRunArea = median(allAreas)
 			
 			for peptide in peptide_dict.iterkeys():
 				csv_writer.writerow([
