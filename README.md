@@ -1,5 +1,7 @@
 Standard-curve-analysis
 =======================
+Written to help with wife's PhD
+
 
 Calling protein standard curve function
 ---------------------------------------
